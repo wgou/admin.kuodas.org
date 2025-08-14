@@ -1,0 +1,442 @@
+<style type="text/css">
+    .sm-st {
+        background: #fff;
+        padding: 20px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        margin-bottom: 20px;
+    }
+
+    .sm-st-icon {
+        width: 60px;
+        height: 60px;
+        display: inline-block;
+        line-height: 60px;
+        text-align: center;
+        font-size: 30px;
+        background: #eee;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        float: left;
+        margin-right: 10px;
+        color: #fff;
+    }
+
+    .sm-st-info {
+        padding-top: 2px;
+    }
+
+    .sm-st-info span {
+        display: block;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .orange {
+        background: #fa8564 !important;
+    }
+
+    .tar {
+        background: #45cf95 !important;
+    }
+
+    .sm-st .green {
+        background: #86ba41 !important;
+    }
+
+    .pink {
+        background: #AC75F0 !important;
+    }
+
+    .yellow-b {
+        background: #fdd752 !important;
+    }
+
+    .stat-elem {
+
+        background-color: #fff;
+        padding: 18px;
+        border-radius: 40px;
+
+    }
+
+    .stat-info {
+        text-align: center;
+        background-color: #fff;
+        border-radius: 5px;
+        margin-top: -5px;
+        padding: 8px;
+        -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 0px rgba(0, 0, 0, 0.05);
+        font-style: italic;
+    }
+
+    .stat-icon {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .st-red {
+        background-color: #F05050;
+    }
+
+    .st-green {
+        background-color: #27C24C;
+    }
+
+    .st-violet {
+        background-color: #7266ba;
+    }
+
+    .st-blue {
+        background-color: #23b7e5;
+    }
+
+    .stats .stat-icon {
+        color: #28bb9c;
+        display: inline-block;
+        font-size: 26px;
+        text-align: center;
+        vertical-align: middle;
+        width: 50px;
+        float: left;
+    }
+
+    .stat {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+
+    .stat .value {
+        font-size: 20px;
+        line-height: 24px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+    }
+
+    .stat .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 5px 0;
+    }
+
+    .stat.lg .value {
+        font-size: 26px;
+        line-height: 28px;
+    }
+
+    .stat-col {
+        margin: 0 0 10px 0;
+    }
+
+    .stat.lg .name {
+        font-size: 16px;
+    }
+
+    .stat-col .progress {
+        height: 2px;
+    }
+
+    .stat-col .progress-bar {
+        line-height: 2px;
+        height: 2px;
+    }
+
+    .item {
+        padding: 30px 0;
+    }
+
+
+    #statistics .panel {
+        min-height: 150px;
+    }
+
+    #statistics .panel h5 {
+        font-size: 14px;
+    }
+</style>
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading(null, false)}
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#one" data-toggle="tab">{:__('Dashboard')}</a></li>
+            <li><a href="#two" data-toggle="tab">{:__('Custom')}</a></li>
+        </ul>
+    </div>
+    <style>
+        .stat-col {
+            height: 150px;
+        }
+    </style>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col-xs-12">
+            <div class="panel panel-default panel-intro panel-statistics">
+                <div class="panel-body">
+                    <div id="datefilter">
+                        <form id="form1" action="" role="form" novalidate class="form-inline">
+                            <a href="javascript:;" class="btn btn-primary btn-refresh"><i class="fa fa-refresh"></i></a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('Today')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('Yesterday')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('Last 7 Days')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('Last 30 Days')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('Last month')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">{:__('This month')}</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">今年</a>
+                            <a href="javascript:;" class="btn btn-success btn-filter">去年</a>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" class="form-control input-inline datetimerange" id="customcharts_datetimerange" data-time-picker="false" autocomplete="off" placeholder="指定日期" style="width:280px;"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div>
+                    <h4>用户信息</h4>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="sm-st clearfix">
+                            <span class="sm-st-icon st-red"><i class="fa fa-users"></i></span>
+                            <div class="sm-st-info">
+                                <span class="user_shouchong">{$tongji.user_shouchong}</span>
+                                每日激活
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="sm-st clearfix">
+                            <span class="sm-st-icon st-violet"><i class="fa fa-magic"></i></span>
+                            <div class="sm-st-info">
+                                <span class="user_qiandao">{$tongji.user_qiandao}</span>
+                                签到人数
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="sm-st clearfix">
+                            <span class="sm-st-icon st-blue"><i class="fa fa-leaf"></i></span>
+                            <div class="sm-st-info">
+                                <span class="user_login">{$tongji.user_login}</span>
+                                登入人数
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="sm-st clearfix">
+                            <span class="sm-st-icon st-green"><i class="fa fa-user"></i></span>
+                            <div class="sm-st-info">
+                                <span class="user_add">{$tongji.user_add}</span>
+                                新增用户
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="sm-st clearfix">
+                            <span class="sm-st-icon st-green"><i class="fa fa-user"></i></span>
+                            <div class="sm-st-info">
+                                <span class="user_rengou">{$tongji.user_rengou}</span>
+                                认购总额
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+
+                    <div class="col-xs-6">
+                        <div>
+                            <h4>充值信息</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-red"><i class="fa fa-users"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="chong_num">{$tongji.chong_num}</span>
+                                        充值次数
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-violet"><i class="fa fa-magic"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="chong_user">{$tongji.chong_user}</span>
+                                        充值人数
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-blue"><i class="fa fa-leaf"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="chong_money">{$tongji.chong_money}</span>
+                                        总充值金额
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div>
+                            <h4>提现信息</h4>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-green"><i class="fa fa-user"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="tixian_num">{$tongji.tixian_num}</span>
+                                        提现次数
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-green"><i class="fa fa-user"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="tixian_user">{$tongji.tixian_user}</span>
+                                        提现人数
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-6">
+                                <div class="sm-st clearfix">
+                                    <span class="sm-st-icon st-green"><i class="fa fa-user"></i></span>
+                                    <div class="sm-st-info">
+                                        <span class="tixian_money">{$tongji.tixian_money}</span>
+                                        总提现金额
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-6" style="border-left: 1px solid #eee">
+                        <div class="row">
+
+                            <div class="col-lg-12">
+                                <div style="padding-bottom: 10px">
+                                    <h4>全部充提信息</h4>
+                                </div>
+                                <div class="card sameheight-item stats">
+                                    <div class="card-block">
+                                        <div class="row row-sm stats-container">
+                                            <div class="col-xs-4 stat-col">
+                                                <div class="stat-icon"><i class="fa fa-user-circle"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_jihuo"> {$tongji.all_jihuo}</div>
+                                                    <div class="name"> 总激活 </div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>                                            
+                                            <div class="col-xs-4 stat-col">
+                                                <div class="stat-icon"><i class="fa fa-rocket"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_chong_num"> {$tongji.all_chong_num}</div>
+                                                    <div class="name"> 全部充值笔数</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-4  stat-col">
+                                                <div class="stat-icon"><i class="fa fa-calendar"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_chong_user"> {$tongji.all_chong_user}</div>
+                                                    <div class="name"> 全部充值人数</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-4 stat-col">
+                                                <div class="stat-icon"><i class="fa fa-calendar-plus-o"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_chong_money"> {$tongji.all_chong_money}</div>
+                                                    <div class="name"> 全部充值总额</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-4 stat-col">
+                                                <div class="stat-icon"><i class="fa fa-vcard"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_tixian_num"> {$tongji.all_tixian_num}</div>
+                                                    <div class="name">全部提现笔数</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-4  stat-col">
+                                                <div class="stat-icon"><i class="fa fa-user-circle"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_tixian_user">{$tongji.all_tixian_user}</div>
+                                                    <div class="name"> 全部提现人数</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-4  stat-col">
+                                                <div class="stat-icon"><i class="fa fa-user-circle-o"></i></div>
+                                                <div class="stat">
+                                                    <div class="value all_tixian_money">{$tongji.all_tixian_money}</div>
+                                                    <div class="name"> 全部提现总额</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success"
+                                                         style="width: 20%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+
+
+            </div>
+            <div class="tab-pane fade" id="two">
+                <div class="row">
+                    <div class="col-xs-12">
+                        {:__('Custom zone')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
