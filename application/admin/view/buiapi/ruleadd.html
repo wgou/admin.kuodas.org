@@ -1,0 +1,42 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+	<div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">规则类型:</label>
+        <div class="col-xs-12 col-sm-8">
+            <select name="field_type"  class="form-control">
+				<option value="add">添加数据时</option>
+				<option value="edit">修改数据时</option>
+			</select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">规则字段:</label>
+        <div class="col-xs-12 col-sm-8">
+			<select name="field_id"  class="form-control">
+				{foreach $field_list as $ke=>$vo}
+					<option value="{$vo.id}">{$vo.title}({$vo.field})</option>
+				{/foreach}
+			</select>
+        </div>
+    </div>
+
+	<div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">规则内容:</label>
+        <div class="col-xs-12 col-sm-8">
+            <select name="rule_data[]" multiple="true" style="height:200px;" class="form-control">
+				{foreach $rule_list as $key=>$val}
+					<option value="{$key}">{$val}</option>
+				{/foreach}
+			</select>
+        </div>
+    </div>
+
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

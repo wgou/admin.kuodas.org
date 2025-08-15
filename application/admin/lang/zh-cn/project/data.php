@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'Id'              => 'ID',
+    'Name'            => '项目名称',
+    'Weigh'           => '排序',
+    'Status'          => '状态',
+    'Status 1'        => '显示',
+    'Set status to 1' => '设为显示',
+    'Status 2'        => '隐藏',
+    'Set status to 2' => '设为隐藏',
+    'Uimage'          => '图片',
+    'Money'           => '认购金额',
+    'Times'           => '周期',
+    'Bzzj_money'      => '乡村振兴补助资金',
+    'Datajson'        => '分红规则',
+    'Day_fh'          => '每日分红',
+    'Czj'             => '返还财政金',
+    'Jifen'           => '返还积分',
+    'Ucontent'        => '项目介绍',
+    'Filecontent'     => '财政补助文件',
+    'Project_type_id' => '项目分类',
+    'Sell'            => '售罄',
+    'Sell 1'          => '已售罄',
+    'Sell 2'          => '未售罄',
+    'Topmoney'        => '认购总金额',
+    'Thismoney'       => '累计认购金额',
+    'Good_start_time'        => '每日开始时间',
+    'Good_end_time'       => '每日结束时间',
+    'Uname'           => '项目负责'
+];

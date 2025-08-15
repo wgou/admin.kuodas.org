@@ -1,0 +1,149 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Uid')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-uid" class="form-control" name="row[uid]" type="number" value="{$row.uid|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text" value="{$row.name|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Gender')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-gender" class="form-control" name="row[gender]" type="text" value="{$row.gender|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Date_of_birth')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-date_of_birth" class="form-control" name="row[date_of_birth]" type="text" value="{$row.date_of_birth|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Place_of_origin')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-place_of_origin" class="form-control" name="row[place_of_origin]" type="text" value="{$row.place_of_origin|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Ethnicity')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class='control-relative'><input id="c-ethnicity" class="form-control" data-toggle="city-picker" name="row[ethnicity]" type="text" value="{$row.ethnicity|htmlentities}"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Political_status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-political_status" class="form-control" name="row[political_status]" type="text" value="{$row.political_status|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Id_number')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-id_number" class="form-control" name="row[id_number]" type="text" value="{$row.id_number|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Home_address')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-home_address" class="form-control" name="row[home_address]" type="text" value="{$row.home_address|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Registered_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-registered_name" class="form-control" name="row[registered_name]" type="text" value="{$row.registered_name|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('User_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-user_id" data-rule="required" data-source="user/user/index" data-field="nickname" class="form-control selectpage" name="row[user_id]" type="text" value="{$row.user_id|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Contact_number')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-contact_number" class="form-control" name="row[contact_number]" type="text" value="{$row.contact_number|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Payee_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-payee_name" class="form-control" name="row[payee_name]" type="text" value="{$row.payee_name|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Bank_account_opening_bank')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-bank_account_opening_bank" class="form-control" name="row[bank_account_opening_bank]" type="text" value="{$row.bank_account_opening_bank|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Bank_card_number')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-bank_card_number" class="form-control" name="row[bank_card_number]" type="text" value="{$row.bank_card_number|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Project_to_be_reported')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-project_to_be_reported" class="form-control" name="row[project_to_be_reported]" type="text" value="{$row.project_to_be_reported|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Investment_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-investment_time" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[investment_time]" type="text" value="{:$row.investment_time?datetime($row.investment_time):''}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Investment_principal')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-investment_principal" class="form-control" name="row[investment_principal]" type="text" value="{$row.investment_principal|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Signature_of_the_applicant')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-signature_of_the_applicant" class="form-control" name="row[signature_of_the_applicant]" type="text" value="{$row.signature_of_the_applicant|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Image')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-image" class="form-control" size="50" name="row[image]" type="text" value="{$row.image|htmlentities}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-image" class="btn btn-danger faupload" data-input-id="c-image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp,image/webp" data-multiple="false" data-preview-id="p-image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-image" class="btn btn-primary fachoose" data-input-id="c-image" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-image"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-image"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            
+            <div class="radio">
+            {foreach name="statusList" item="vo"}
+            <label for="row[status]-{$key}"><input id="row[status]-{$key}" name="row[status]" type="radio" value="{$key}" {in name="key" value="$row.status"}checked{/in} /> {$vo}</label> 
+            {/foreach}
+            </div>
+
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
+        </div>
+    </div>
+</form>

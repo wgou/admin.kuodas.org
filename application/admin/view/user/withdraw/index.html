@@ -1,0 +1,586 @@
+<div class="panel panel-default panel-intro">
+
+    <div class="panel-heading">
+        {:build_heading(null,FALSE)}
+        <ul class="nav nav-tabs" data-field="status">
+            <li class="active"><a href="#t-all" data-value="" data-toggle="tab">{:__('All')}</a></li>
+            {foreach name="statusList" item="vo"}
+            <li><a href="#t-{$key}" data-value="{$key}" data-toggle="tab">{$vo}</a></li>
+            {/foreach}
+        </ul>
+    </div>
+
+
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">
+                        <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}"><i
+                                class="fa fa-refresh"></i> </a>
+                        <!--<a href="javascript:;"
+                           class="btn btn-success btn-add {:$auth->check('user/withdraw/add')?'':'hide'}"
+                           title="{:__('Add')}"><i class="fa fa-plus"></i> {:__('Add')}</a>-->
+                        <!--                        <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('user/withdraw/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>-->
+                        <!--                        <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('user/withdraw/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>-->
+                        <a href="javascript:;" class="btn btn-primary btn-changeteacher btn-disabled disabled"
+                           title="{:__('批量处理')}"><i class="fa fa-suitcase"></i> {:__('批量处理')}</a>
+                        <a href="javascript:;" class="btn btn-primary btn-changeteacher2" style="display: none;" title="{:__('批量处理')}"><i
+                                class="fa fa-suitcase"></i> {:__('全部处理')}</a>
+                        <a href="javascript:;" class="btn btn-success btn-export-created" title="{:__('Export Created Title')}" style="display: none;">
+                            <i class="fa fa-download"></i> {:__('Export Created CSV')}
+                        </a>
+                        <a href="javascript:;" class="btn btn-info btn-export-batch" title="分批导出">
+                            <i class="fa fa-calendar"></i> 分批导出
+                        </a>
+
+                    </div>
+                    <table id="table" class="table table-striped table-bordered table-hover table-nowrap"
+                           data-operate-edit="{:$auth->check('user/withdraw/edit')}"
+                           width="100%">
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 导出进度模态框 -->
+<div class="modal fade" id="exportProgressModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">导出进度</h4>
+            </div>
+            <div class="modal-body">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 0%">
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+                <p id="progressInfo" class="text-center">正在准备导出...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 分批导出模态框 -->
+<div class="modal fade" id="exportBatchModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">分批导出</h4>
+            </div>
+            <div class="modal-body">
+                <form id="exportBatchForm">
+                    <div class="form-group">
+                        <label for="start_date">开始日期</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" placeholder="选择开始日期">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">结束日期</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" placeholder="选择结束日期">
+                    </div>
+                    <div class="form-group">
+                        <small class="text-muted">提示：如果不选择日期，将导出所有审核中的记录。建议按日期分批导出，避免数据量过大。</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="btnExportBatch">开始导出</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+// 等待页面加载完成
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('页面加载完成，开始绑定事件');
+    
+    // 检查jQuery是否可用
+    if (typeof jQuery === 'undefined') {
+        console.log('jQuery未加载，使用原生JavaScript');
+        
+        // 绑定导出按钮点击事件
+        var exportBtn = document.querySelector('.btn-export-created');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleExport();
+            });
+        }
+        
+        // 绑定分批导出按钮点击事件
+        var exportBatchBtn = document.querySelector('.btn-export-batch');
+        if (exportBatchBtn) {
+            exportBatchBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showBatchExportModal();
+            });
+        }
+        
+        // 绑定分批导出表单提交事件
+        var btnExportBatch = document.getElementById('btnExportBatch');
+        if (btnExportBatch) {
+            btnExportBatch.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleBatchExport();
+            });
+        }
+        
+    } else {
+        console.log('jQuery已加载，使用jQuery实现');
+        
+        // 绑定导出按钮点击事件
+        $(document).on('click', '.btn-export-created', function(e) {
+            e.preventDefault();
+            handleExport();
+        });
+        
+        // 绑定分批导出按钮点击事件
+        $(document).on('click', '.btn-export-batch', function(e) {
+            e.preventDefault();
+            showBatchExportModal();
+        });
+        
+        // 绑定分批导出表单提交事件
+        $(document).on('click', '#btnExportBatch', function(e) {
+            e.preventDefault();
+            handleBatchExport();
+        });
+    }
+    
+    console.log('事件绑定完成');
+});
+
+// 处理普通导出
+function handleExport() {
+    console.log('导出按钮被点击');
+    
+    var $btn = typeof jQuery !== 'undefined' ? $('.btn-export-created') : document.querySelector('.btn-export-created');
+    var originalText = typeof jQuery !== 'undefined' ? $btn.html() : $btn.innerHTML;
+    
+    // 禁用按钮
+    if (typeof jQuery !== 'undefined') {
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> 准备中...');
+    } else {
+        $btn.disabled = true;
+        $btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 准备中...';
+    }
+    
+    // 显示进度模态框
+    showProgressModal();
+    
+    // 获取总记录数
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{:url("user/withdraw/getCreatedCount")}', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 10000;
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                console.log('获取记录数成功:', response);
+                
+                if (response.code === 1) {
+                    var totalCount = response.count;
+                    
+                    if (totalCount === 0) {
+                        updateProgressInfo('没有审核中的提现记录');
+                        resetButton($btn, originalText);
+                        return;
+                    }
+                    
+                    updateProgressInfo('共有 ' + totalCount + ' 条记录需要导出');
+                    
+                    // 开始导出
+                    startExport('{:url("user/withdraw/exportCreated")}', $btn, originalText);
+                    
+                } else {
+                    console.log('获取记录数失败:', response);
+                    updateProgressInfo('获取数据失败');
+                    resetButton($btn, originalText);
+                }
+            } catch (e) {
+                console.log('JSON解析错误:', e);
+                updateProgressInfo('数据格式错误');
+                resetButton($btn, originalText);
+            }
+        } else {
+            console.log('HTTP错误:', xhr.status);
+            updateProgressInfo('网络错误，请重试');
+            resetButton($btn, originalText);
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.log('网络错误');
+        updateProgressInfo('网络错误，请重试');
+        resetButton($btn, originalText);
+    };
+    
+    xhr.ontimeout = function() {
+        console.log('请求超时');
+        updateProgressInfo('请求超时，请重试');
+        resetButton($btn, originalText);
+    };
+    
+    xhr.send();
+}
+
+// 显示分批导出模态框
+function showBatchExportModal() {
+    console.log('显示分批导出模态框');
+    if (typeof jQuery !== 'undefined') {
+        $('#exportBatchModal').modal('show');
+    } else {
+        var modal = document.getElementById('exportBatchModal');
+        if (modal) {
+            if (typeof bootstrap !== 'undefined') {
+                var bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+            } else {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+    }
+}
+
+// 处理分批导出
+function handleBatchExport() {
+    console.log('开始分批导出');
+    
+    var startDate = document.getElementById('start_date').value;
+    var endDate = document.getElementById('end_date').value;
+    
+    // 验证日期
+    if (startDate && endDate && startDate > endDate) {
+        alert('开始日期不能大于结束日期');
+        return;
+    }
+    
+    // 关闭模态框
+    if (typeof jQuery !== 'undefined') {
+        $('#exportBatchModal').modal('hide');
+    } else {
+        var modal = document.getElementById('exportBatchModal');
+        if (modal) {
+            if (typeof bootstrap !== 'undefined') {
+                var bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            } else {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+    }
+    
+    // 显示进度模态框
+    showProgressModal();
+    updateProgressInfo('正在创建导出任务...');
+    
+    // 创建导出任务
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{:url("user/withdraw/createExportTask")}', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.timeout = 10000;
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                console.log('创建任务成功:', response);
+                
+                if (response.code === 1) {
+                    var taskId = response.task_id;
+                    updateProgressInfo('导出任务已创建，正在处理...');
+                    
+                    // 开始轮询任务状态
+                    pollTaskStatus(taskId);
+                    
+                } else {
+                    console.log('创建任务失败:', response);
+                    updateProgressInfo('创建导出任务失败');
+                }
+            } catch (e) {
+                console.log('JSON解析错误:', e);
+                updateProgressInfo('数据格式错误');
+            }
+        } else {
+            console.log('HTTP错误:', xhr.status);
+            updateProgressInfo('网络错误，请重试');
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.log('网络错误');
+        updateProgressInfo('网络错误，请重试');
+    };
+    
+    xhr.ontimeout = function() {
+        console.log('请求超时');
+        updateProgressInfo('请求超时，请重试');
+    };
+    
+    // 发送请求数据
+    var data = '';
+    if (startDate) data += 'start_date=' + encodeURIComponent(startDate);
+    if (endDate) {
+        if (data) data += '&';
+        data += 'end_date=' + encodeURIComponent(endDate);
+    }
+    
+    xhr.send(data);
+}
+
+// 轮询任务状态
+function pollTaskStatus(taskId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{:url("user/withdraw/getExportTaskStatus")}?task_id=' + taskId, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 10000;
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                console.log('获取任务状态:', response);
+                
+                if (response.code === 1) {
+                    var taskData = response.data;
+                    
+                    if (taskData.status === 'completed') {
+                        // 任务完成，开始下载
+                        updateProgressInfo('导出完成！正在下载文件...');
+                        downloadExportFile(taskId);
+                    } else if (taskData.status === 'processing') {
+                        // 任务处理中，显示进度
+                        var progress = 0;
+                        if (taskData.total_records > 0) {
+                            progress = Math.round((taskData.processed_records / taskData.total_records) * 100);
+                        }
+                        
+                        var progressBar = document.querySelector('.progress-bar');
+                        if (progressBar) {
+                            progressBar.style.width = progress + '%';
+                            var progressText = document.getElementById('progressText');
+                            if (progressText) {
+                                progressText.textContent = progress + '%';
+                            }
+                        }
+                        
+                        updateProgressInfo('正在处理数据... (' + taskData.processed_records + '/' + taskData.total_records + ')');
+                        
+                        // 继续轮询
+                        setTimeout(function() {
+                            pollTaskStatus(taskId);
+                        }, 2000);
+                        
+                    } else if (taskData.status === 'pending') {
+                        updateProgressInfo('任务等待中...');
+                        
+                        // 继续轮询
+                        setTimeout(function() {
+                            pollTaskStatus(taskId);
+                        }, 1000);
+                    }
+                    
+                } else {
+                    console.log('获取任务状态失败:', response);
+                    updateProgressInfo('获取任务状态失败');
+                }
+            } catch (e) {
+                console.log('JSON解析错误:', e);
+                updateProgressInfo('数据格式错误');
+            }
+        } else {
+            console.log('HTTP错误:', xhr.status);
+            updateProgressInfo('网络错误，请重试');
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.log('网络错误');
+        updateProgressInfo('网络错误，请重试');
+    };
+    
+    xhr.ontimeout = function() {
+        console.log('请求超时');
+        updateProgressInfo('请求超时，请重试');
+    };
+    
+    xhr.send();
+}
+
+// 下载导出文件
+function downloadExportFile(taskId) {
+    var iframe = document.createElement('iframe');
+    iframe.src = '{:url("user/withdraw/downloadExportFile")}?task_id=' + taskId;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    // 更新进度为100%
+    var progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        progressBar.style.width = '100%';
+        var progressText = document.getElementById('progressText');
+        if (progressText) {
+            progressText.textContent = '100%';
+        }
+    }
+    
+    updateProgressInfo('导出完成！文件已开始下载');
+    
+    setTimeout(function() {
+        hideProgressModal();
+        if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+        }
+    }, 2000);
+}
+
+// 显示进度模态框
+function showProgressModal() {
+    if (typeof jQuery !== 'undefined') {
+        $('#exportProgressModal').modal('show');
+    } else {
+        var modal = document.getElementById('exportProgressModal');
+        if (modal) {
+            if (typeof bootstrap !== 'undefined') {
+                var bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+            } else {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+    }
+}
+
+// 更新进度信息
+function updateProgressInfo(message) {
+    if (typeof jQuery !== 'undefined') {
+        $('#progressInfo').html(message);
+    } else {
+        var element = document.getElementById('progressInfo');
+        if (element) {
+            element.innerHTML = message;
+        }
+    }
+}
+
+// 重置按钮状态
+function resetButton($btn, originalText) {
+    if (typeof jQuery !== 'undefined') {
+        $btn.prop('disabled', false).html(originalText);
+    } else {
+        $btn.disabled = false;
+        $btn.innerHTML = originalText;
+    }
+}
+
+// 开始导出
+function startExport(url, $btn, originalText) {
+    var iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    // 模拟进度更新
+    var progress = 0;
+    var progressInterval = setInterval(function() {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        
+        var progressPercent = Math.round(progress);
+        var progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = progressPercent + '%';
+            var progressText = document.getElementById('progressText');
+            if (progressText) {
+                progressText.textContent = progressPercent + '%';
+            }
+        }
+        
+        if (progressPercent >= 90) {
+            clearInterval(progressInterval);
+        }
+    }, 200);
+    
+    // 监听iframe加载完成
+    iframe.onload = function() {
+        console.log('iframe加载完成');
+        clearInterval(progressInterval);
+        var progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '100%';
+            var progressText = document.getElementById('progressText');
+            if (progressText) {
+                progressText.textContent = '100%';
+            }
+            updateProgressInfo('导出完成！文件已开始下载');
+        }
+        
+        setTimeout(function() {
+            hideProgressModal();
+            if ($btn && originalText) {
+                resetButton($btn, originalText);
+            }
+            document.body.removeChild(iframe);
+        }, 1000);
+    };
+    
+    // 超时处理
+    setTimeout(function() {
+        if (document.body.contains(iframe)) {
+            console.log('导出超时，强制完成');
+            clearInterval(progressInterval);
+            var progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                var progressText = document.getElementById('progressText');
+                if (progressText) {
+                    progressText.textContent = '100%';
+                }
+                updateProgressInfo('导出完成！');
+            }
+            
+            setTimeout(function() {
+                hideProgressModal();
+                if ($btn && originalText) {
+                    resetButton($btn, originalText);
+                }
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }, 1000);
+        }
+    }, 30000);
+}
+
+// 隐藏进度模态框
+function hideProgressModal() {
+    if (typeof jQuery !== 'undefined') {
+        $('#exportProgressModal').modal('hide');
+    } else {
+        var modal = document.getElementById('exportProgressModal');
+        if (modal) {
+            if (typeof bootstrap !== 'undefined') {
+                var bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            } else {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+    }
+}
+</script>
