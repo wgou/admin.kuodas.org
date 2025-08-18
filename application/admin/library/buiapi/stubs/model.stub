@@ -1,0 +1,13 @@
+<?php
+
+namespace app\{%model_path%}\model;
+
+use think\Model;
+
+class {%model_name%} extends Model{
+
+	protected $name = '{%table_name%}';
+	
+	{%relation_method_list%}
+	
+}

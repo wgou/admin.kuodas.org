@@ -1,0 +1,13 @@
+<?php
+
+namespace app\common\model;
+
+use think\Model;
+
+class Address extends Model{
+
+	protected $name = 'address';
+	
+	
+	
+}

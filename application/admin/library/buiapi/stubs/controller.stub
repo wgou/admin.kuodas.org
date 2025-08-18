@@ -1,0 +1,24 @@
+<?php
+
+namespace app\api\controller;
+
+use app\api\library\buiapi\Api;
+
+class {%controller_name%} extends Api{
+
+    protected $model = null;
+	
+	protected $noNeedRight = '*';
+	protected $noNeedLogin = {%need_login%};
+	protected $_allow_func = {%allow_func%};
+	{%index_search_field%}
+	
+	use \app\api\library\buiapi\traits\Api;
+	
+    public function _initialize(){
+        parent::_initialize();
+        $this->model = new \app\{%model_path%}\model\{%model_name%};
+	}
+	
+	{%controller_index%}
+}

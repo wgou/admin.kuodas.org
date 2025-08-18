@@ -1,0 +1,501 @@
+<div class="panel panel-default panel-intro">
+    {:build_heading()}
+
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">
+                        {:build_toolbar('refresh,add')}
+                        <div class="dropdown btn-group {:$auth->check('user/user/multi')?'':'hide'}">
+                            <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown">
+                                <i class="fa fa-cog"></i> {:__('More')}
+                            </a>
+                            <ul class="dropdown-menu text-left" role="menu">
+                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=normal">
+                                    <i class="fa fa-eye"></i> {:__('Set to normal')}
+                                </a></li>
+                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=hidden">
+                                    <i class="fa fa-eye-slash"></i> {:__('Set to hidden')}
+                                </a></li>
+                            </ul>
+                        </div>
+                        <a href="javascript:;" class="btn btn-info btn-multiple btn-disabled disabled"
+                            data-toggle="modal" data-target="#exampleModal" title="{:__('批量处理')}">
+                            <i class="fa fa-check-circle-o"></i> {:__('批量处理')}
+                        </a>
+                        <a href="javascript:;" class="btn btn-success" id="loadDetailsBtn" title="{:__('加载详细数据')}">
+                            <i class="fa fa-download"></i> {:__('加载详细数据')}
+                        </a>
+                    </div>
+                    
+                    <!-- 异步加载进度条 -->
+                    <div id="loadingProgress" class="progress" style="display: none; margin: 10px 0;">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 0%">
+                            <span id="progressText">准备加载...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户列表表格 -->
+                    <table id="table" class="table table-striped table-bordered table-hover table-nowrap"
+                           data-operate-edit="{:$auth->check('user/user/edit')}"
+                           data-operate-del="{:$auth->check('user/user/del')}"
+                           width="100%">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 全屏加载遮罩 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- 批量处理模态框 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width: 400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="margin-bottom: -20px;">
+                    <form method="POST" action="">
+                        <div class="form-group row">
+                            <label for="colFormLabelSm" class="col-sm-2 col-form-label col-form-label-sm">{:__('Status')}:</label>
+                            <div id="colFormLabel" class="col-sm-10">
+                                {foreach name="getAccType" item="vo"}
+                                <label for="is_rot-{$key}">
+                                    <input id="is_rot-{$key}" name="is_rot" type="radio" value="{$key}" {in name="key" value="1" }checked{/in} />
+                                    {$vo}
+                                </label>
+                                {/foreach}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submit_data()">{:__('OK')}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 全屏加载遮罩样式 */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+}
+
+.loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 异步加载相关样式 */
+.async-loading {
+    color: #999;
+    font-style: italic;
+}
+
+.async-loading::before {
+    content: '⏳ ';
+    margin-right: 5px;
+}
+
+.details-loading {
+    position: relative;
+    opacity: 0.7;
+}
+
+.details-loaded {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.details-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* 进度条样式 */
+.progress {
+    height: 25px;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    line-height: 25px;
+    font-size: 12px;
+}
+
+/* 头像占位符样式 */
+.avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* 状态标签样式 */
+.label {
+    display: inline;
+    padding: 0.2em 0.6em 0.3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25em;
+}
+
+.label-success { background-color: #5cb85c; }
+.label-warning { background-color: #f0ad4e; }
+.label-info { background-color: #5bc0de; }
+.label-primary { background-color: #337ab7; }
+</style>
+
+<script>
+// 全局变量
+var userDetailsCache = {};
+var loadingQueue = [];
+var isProcessingQueue = false;
+
+// 表格列配置
+var tableColumns = [
+    [
+        { checkbox: true },
+        { field: 'id', title: 'ID', width: 60, sortable: true },
+        { field: 'avatar', title: '头像', width: 60, formatter: avatarFormatter },
+        { field: 'username', title: '用户名', width: 120, sortable: true },
+        { field: 'nickname', title: '昵称', width: 100, sortable: true },
+        { field: 'status', title: '状态', width: 80, formatter: statusFormatter },
+        { field: 'is_rot', title: '账号类型', width: 80, formatter: accountTypeFormatter },
+        { field: 'zhituinum', title: '直推人数', width: 80, formatter: asyncFieldFormatter },
+        { field: 'allnum', title: '全部下级', width: 80, formatter: asyncFieldFormatter },
+        { field: 'allbuy', title: '累计消费', width: 100, formatter: asyncFieldFormatter },
+        { field: 'levename', title: '身份等级', width: 100, formatter: asyncFieldFormatter },
+        { field: 'jointime', title: '注册时间', width: 150, sortable: true, formatter: timeFormatter },
+        { field: 'logintime', title: '最后登录', width: 150, sortable: true, formatter: timeFormatter },
+        { field: 'ipname', title: '地理位置', width: 120, formatter: asyncFieldFormatter },
+        { field: 'group', title: '用户组', width: 100, formatter: asyncFieldFormatter },
+        { field: 'operate', title: '操作', width: 200, formatter: operateFormatter, events: operateEvents }
+    ]
+];
+
+// 表格配置
+var tableConfig = {
+    url: 'user/user/index',
+    method: 'post',
+    toolbar: '#toolbar',
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 25,
+    pageList: [10, 25, 50, 100],
+    search: true,
+    showColumns: true,
+    showRefresh: true,
+    clickToSelect: true,
+    columns: tableColumns,
+    queryParams: function(params) {
+        return params;
+    },
+    responseHandler: function(res) {
+        // 处理响应数据，标记哪些字段需要异步加载
+        if (res.rows) {
+            res.rows.forEach(function(row) {
+                // 标记异步加载字段
+                row.zhituinum = row.zhituinum || '<span class="async-loading" data-field="zhituinum">加载中...</span>';
+                row.allnum = row.allnum || '<span class="async-loading" data-field="allnum">加载中...</span>';
+                row.allbuy = row.allbuy || '<span class="async-loading" data-field="allbuy">加载中...</span>';
+                row.levename = row.levename || '<span class="async-loading" data-field="levename">加载中...</span>';
+                row.ipname = row.ipname || '<span class="async-loading" data-field="ipname">加载中...</span>';
+                row.group = row.group || '<span class="async-loading" data-field="group">加载中...</span>';
+            });
+        }
+        return res;
+    }
+};
+
+// 格式化器函数
+function avatarFormatter(value, row, index) {
+    if (value) {
+        return '<img src="' + value + '" class="img-circle" style="width:40px;height:40px;">';
+    } else {
+        return '<div class="avatar-placeholder">' + (row.nickname ? row.nickname.charAt(0).toUpperCase() : 'U') + '</div>';
+    }
+}
+
+function statusFormatter(value, row, index) {
+    var statusMap = {
+        'normal': '<span class="label label-success">正常</span>',
+        'hidden': '<span class="label label-warning">隐藏</span>'
+    };
+    return statusMap[value] || value;
+}
+
+function accountTypeFormatter(value, row, index) {
+    var typeMap = {
+        '1': '<span class="label label-info">用户</span>',
+        '2': '<span class="label label-primary">机器人</span>'
+    };
+    return typeMap[value] || value;
+}
+
+function asyncFieldFormatter(value, row, index) {
+    if (typeof value === 'string' && value.includes('async-loading')) {
+        return value;
+    }
+    if (value === undefined || value === null) {
+        return '<span class="async-loading" data-field="' + this.field + '">加载中...</span>';
+    }
+    return value;
+}
+
+function timeFormatter(value, row, index) {
+    if (!value) return '-';
+    var date = new Date(value * 1000);
+    return date.toLocaleString('zh-CN');
+}
+
+function operateFormatter(value, row, index) {
+    var buttons = [];
+    buttons.push('<a class="btn btn-xs btn-info btn-view" href="javascript:;" title="查看"><i class="fa fa-eye"></i></a>');
+    buttons.push('<a class="btn btn-xs btn-success btn-edit" href="javascript:;" title="编辑"><i class="fa fa-pencil"></i></a>');
+    buttons.push('<a class="btn btn-xs btn-warning btn-chong" href="javascript:;" title="充值"><i class="fa fa-money"></i></a>');
+    buttons.push('<a class="btn btn-xs btn-primary btn-team" href="javascript:;" title="团队"><i class="fa fa-users"></i></a>');
+    return buttons.join(' ');
+}
+
+// 操作事件
+var operateEvents = {
+    'click .btn-view': function(e, value, row, index) {
+        window.open('user/user/edit/ids/' + row.id, '_blank');
+    },
+    'click .btn-edit': function(e, value, row, index) {
+        window.open('user/user/edit/ids/' + row.id, '_blank');
+    },
+    'click .btn-chong': function(e, value, row, index) {
+        window.open('user/user/chong/ids/' + row.id, '_blank');
+    },
+    'click .btn-team': function(e, value, row, index) {
+        window.open('user/user/team/ids/' + row.id, '_blank');
+    }
+};
+
+// 获取选中的用户ID
+function getIdSelections() {
+    return $.map($("#table").bootstrapTable('getSelections'), function (row) {
+        return row.id
+    });
+}
+
+// 提交批量处理数据
+function submit_data() {
+    $('#exampleModal').modal('hide');
+    $('#loading-overlay').show();
+    var checkids = [];
+    checkids = getIdSelections();
+    console.log(checkids);
+    var is_rots = $('input[name="is_rot"]:checked').val();
+    var requestData = {
+        ids: checkids,
+        is_rot: is_rots
+    };
+    $.ajax({
+        type: 'POST',
+        url: 'user/user/update_user_type',
+        data: requestData,
+        success: function (data) {
+            $('#table').bootstrapTable('refresh');
+            $('#loading-overlay').hide();
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', xhr.responseText);
+            $('#loading-overlay').hide();
+        }
+    });
+}
+
+// 异步加载详细数据
+function loadUserDetails() {
+    var table = $('#table');
+    var data = table.bootstrapTable('getData');
+    
+    if (data.length === 0) {
+        alert('没有数据需要加载');
+        return;
+    }
+    
+    // 显示进度条
+    $('#loadingProgress').show();
+    $('#loadDetailsBtn').prop('disabled', true);
+    
+    // 获取需要加载详细数据的用户ID
+    var userIdsToLoad = [];
+    data.forEach(function(row) {
+        if (!userDetailsCache[row.id] && !row.details_loaded) {
+            userIdsToLoad.push(row.id);
+        }
+    });
+    
+    if (userIdsToLoad.length === 0) {
+        $('#loadingProgress').hide();
+        $('#loadDetailsBtn').prop('disabled', false);
+        alert('所有用户的详细数据已加载完成');
+        return;
+    }
+    
+    // 分批加载数据（每批50个用户）
+    var batchSize = 50;
+    var totalBatches = Math.ceil(userIdsToLoad.length / batchSize);
+    var currentBatch = 0;
+    
+    function processBatch() {
+        if (currentBatch >= totalBatches) {
+            // 所有批次处理完成
+            $('#loadingProgress').hide();
+            $('#loadDetailsBtn').prop('disabled', false);
+            table.bootstrapTable('refresh');
+            return;
+        }
+        
+        var startIndex = currentBatch * batchSize;
+        var endIndex = Math.min(startIndex + batchSize, userIdsToLoad.length);
+        var batchUserIds = userIdsToLoad.slice(startIndex, endIndex);
+        
+        // 更新进度条
+        var progress = Math.round((currentBatch / totalBatches) * 100);
+        $('#loadingProgress .progress-bar').css('width', progress + '%');
+        $('#progressText').text('正在加载第 ' + (currentBatch + 1) + '/' + totalBatches + ' 批...');
+        
+        // 发送请求加载详细数据
+        $.ajax({
+            type: 'POST',
+            url: 'user/user/index',
+            data: {
+                action: 'loadDetails',
+                user_ids: batchUserIds
+            },
+            success: function(response) {
+                if (response.code === 1) {
+                    // 缓存详细数据
+                    Object.keys(response.data).forEach(function(userId) {
+                        userDetailsCache[userId] = response.data[userId];
+                    });
+                    
+                    // 更新表格中的行数据
+                    updateTableRows(batchUserIds);
+                } else {
+                    console.error('加载详细数据失败:', response.msg);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('请求失败:', error);
+            },
+            complete: function() {
+                currentBatch++;
+                // 延迟处理下一批，避免请求过于频繁
+                setTimeout(processBatch, 100);
+            }
+        });
+    }
+    
+    // 开始处理第一批
+    processBatch();
+}
+
+// 更新表格行数据
+function updateTableRows(userIds) {
+    var table = $('#table');
+    var data = table.bootstrapTable('getData');
+    
+    userIds.forEach(function(userId) {
+        var rowIndex = data.findIndex(function(row) {
+            return row.id == userId;
+        });
+        
+        if (rowIndex !== -1 && userDetailsCache[userId]) {
+            var details = userDetailsCache[userId];
+            
+            // 更新行数据
+            data[rowIndex].zhituinum = details.zhituinum || 0;
+            data[rowIndex].allnum = details.allnum || 0;
+            data[rowIndex].allbuy = details.allbuy || 0;
+            data[rowIndex].levename = details.levename || '无身份';
+            data[rowIndex].ipname = details.ipname || '未知';
+            data[rowIndex].group = details.group || '默认组';
+            data[rowIndex].details_loaded = true;
+            data[rowIndex].loading_details = false;
+            
+            // 标记行已加载
+            var $row = table.bootstrapTable('getRowByUniqueId', userId);
+            if ($row) {
+                $row.removeClass('details-loading details-error').addClass('details-loaded');
+            }
+        }
+    });
+    
+    // 刷新表格显示
+    table.bootstrapTable('refresh');
+}
+
+// 页面加载完成后初始化
+$(document).ready(function() {
+    // 初始化表格
+    $('#table').bootstrapTable(tableConfig);
+    
+    // 绑定加载详细数据按钮事件
+    $('#loadDetailsBtn').click(function() {
+        loadUserDetails();
+    });
+    
+    // 监听表格加载完成事件
+    $('#table').on('post-body.bs.table', function() {
+        // 检查哪些行需要加载详细数据
+        var table = $(this);
+        var data = table.bootstrapTable('getData');
+        
+        data.forEach(function(row) {
+            if (!userDetailsCache[row.id] && !row.details_loaded) {
+                // 标记行需要加载详细数据
+                var $row = table.bootstrapTable('getRowByUniqueId', row.id);
+                if ($row) {
+                    $row.addClass('details-loading');
+                }
+            }
+        });
+    });
+});
+</script> 

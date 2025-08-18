@@ -1,0 +1,201 @@
+<style>
+    .relation-item {margin-top:10px;}
+    legend {padding-bottom:5px;font-size:14px;font-weight:600;}
+    label {font-weight:normal;}
+    .form-control{padding:6px 8px;}
+    #extend-zone .col-xs-2 {margin-top:10px;padding-right:0;}
+    #extend-zone .col-xs-2:nth-child(6n+0) {padding-right:15px;}
+	.control-label{line-height:24px;}
+</style>
+<div class="panel panel-default panel-intro">
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="crud">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <form role="form">
+                            <input type="hidden" name="commandtype" value="crud" />
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <input checked="" name="isrelation" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" data-placement="bottom" title="选中后请配置关联表和字段">
+                                            <input name="isrelation" type="checkbox" value="1"> 关联模型
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <input checked="" name="local" type="hidden" value="1">
+                                        <label class="control-label" data-toggle="tooltip" data-placement="bottom" title="选中后将生成在application/common/model目录下">
+                                            <input name="local" type="checkbox" value="0"> 全局模型类
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <input checked="" name="delete" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" data-placement="bottom" title="选择删除不执行其他的生成动作">
+                                            <input name="delete" type="checkbox" value="1"> 删除模式
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <input checked="" name="force" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" data-placement="bottom" title="选中后,如果已经存在同名文件将被覆盖。如果是删除将不再提醒">
+                                            <input name="force" type="checkbox" value="1">
+                                            强制覆盖模式
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+							
+							<div class="form-group" style="display:none">
+								<legend>需要生成的接口</legend>
+                                <div class="row">
+                                    <div class="col-xs-2">
+                                        <input checked="" name="bu-add" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="添加接口">
+                                            <input name="bu-add" type="checkbox" value="1"> 创建
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input checked="" name="bu-del" type="hidden" value="1">
+                                        <label class="control-label" data-toggle="tooltip" title="删除接口">
+                                            <input name="bu-del" type="checkbox" value="0"> 删除
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input checked="" name="bu-edit" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="修改接口">
+                                            <input name="bu-edit" type="checkbox" value="1"> 修改
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input checked="" name="bu-list" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="列表接口">
+                                            <input name="bu-list" type="checkbox" value="bu-list"> 列表
+                                        </label>
+                                    </div>
+									<div class="col-xs-2">
+                                        <input checked="" name="bu-view" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="详情接口">
+                                            <input name="bu-view" type="checkbox" value="bu-list"> 详情
+                                        </label>
+                                    </div>
+									
+									<div class="col-xs-2">
+                                        <input checked="" name="bu-list" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="需要用户登录，才可以访问接口。">
+                                            <input name="bu-list" type="radio" value="bu-list"> 需要登录
+                                        </label>
+                                    </div>
+									<div class="col-xs-2">
+                                        <input checked="" name="bu-list" type="hidden" value="0">
+                                        <label class="control-label" data-toggle="tooltip" title="不需要用户登录，直接可以访问接口。">
+                                            <input name="bu-list" type="radio" value="bu-list"> 无需登录
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <legend>生成的接口</legend>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <label>生成的方法</label>
+										{:build_select('func[]', $funList,['index','add','edit','view'], ['class'=>'form-control selectpicker', 'multiple'=>'','data-actions'=>'true'])}
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <label>是否验证登录</label>
+                                        {:build_select('login', $loginList,'login', ['class'=>'form-control selectpicker readonly', 'data-live-search'=>'false']);}
+                                    </div>
+									<div class="col-xs-3">
+                                        <label>限制搜索字段</label>
+                                        <select name="searchfields[]" id="searchfields" multiple style="height:30px;" class="form-control selectpicker" data-live-search="true"></select>
+                                    </div>
+                                </div>
+                            </div>
+							
+                            <div class="form-group">
+                                <legend>主表设置</legend>
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <label>请选择主表</label>
+                                        {:build_select('table',$tableList,'$table',['class'=>'form-control selectpicker readonly', 'data-live-search'=>'true']);}
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <label>自定义控制器名</label>
+                                        <input type="text" class="form-control" name="controller" data-toggle="tooltip" title="默认根据表名自动生成,如果需要放在二级目录请手动填写" readonly="readonly" placeholder="支持目录层级,以/分隔">
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <label>自定义模型名</label>
+                                        <input type="text" class="form-control" readonly="readonly" name="model" data-toggle="tooltip" title="默认根据表名自动生成" placeholder="不支持目录层级">
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <label>请选择显示字段(默认全部)</label>
+                                        <select name="fields[]" id="fields" multiple style="height:30px;" class="form-control selectpicker" data-live-search="true"></select>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group hide" id="relation-zone">
+                                <legend>关联表设置</legend>
+
+                                <div class="row" style="margin-top:15px;">
+                                    <div class="col-xs-12">
+                                        <a href="javascript:;" class="btn btn-primary btn-sm btn-newrelation" data-index="1">追加关联模型</a>
+                                    </div>
+                                </div>
+                            </div>
+
+							
+                            <div class="form-group">
+                                <legend>生成命令行</legend>
+                                <textarea class="form-control" name="commond" data-toggle="tooltip" title="如果在线执行命令失败,可以将命令复制到命令行进行执行" rel="command" rows="3" readonly="readonly" placeholder="请点击生成命令行"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <legend>返回结果</legend>
+                                <textarea class="form-control" rel="result" rows="5" placeholder="请点击立即执行"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                    <button type="button" class="btn btn-info btn-embossed btn-command">{:__('生成命令行')}</button>
+                                    <button type="button" class="btn btn-success btn-embossed btn-execute">{:__('立即执行')}</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+			
+			
+			
+        </div>
+    </div>
+</div>
+<script id="relationtpl" type="text/html">
+    <div class="row relation-item">
+        <div class="col-xs-2">
+            <label>请选择关联表</label>
+            <select name="relation[<%=index%>][relation]" class="form-control relationtable" data-live-search="true"></select>
+        </div>
+        <div class="col-xs-2">
+            <label>请选择关联类型</label>
+            <select name="relation[<%=index%>][relationmode]" class="form-control relationmode"></select>
+        </div>
+        <div class="col-xs-2">
+            <label>关联外键</label>
+            <select name="relation[<%=index%>][relationforeignkey]" class="form-control relationforeignkey"></select>
+        </div>
+        <div class="col-xs-2">
+            <label>关联主键</label>
+            <select name="relation[<%=index%>][relationprimarykey]" class="form-control relationprimarykey"></select>
+        </div>
+        <div class="col-xs-2">
+            <label>请选择显示字段</label>
+            <select name="relation[<%=index%>][relationfields][]" multiple class="form-control relationfields"></select>
+        </div>
+        <div class="col-xs-2">
+            <label>&nbsp;</label>
+            <a href="javascript:;" class="btn btn-danger btn-block btn-removerelation">移除</a>
+        </div>
+    </div>
+</script>
